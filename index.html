@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Zbudowany projekt - Tomitornado</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 650px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    color: #00e5ff;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+}
+
+.lottery-box {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: left;
+}
+
+.box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.4rem;
+    color: #ff007f;
+}
+
+.draw-date {
+    font-size: 0.85rem;
+    color: #00ffcc;
+    background: rgba(0, 255, 204, 0.1);
+    padding: 4px 10px;
+    border-radius: 10px;
+}
+
+.numbers-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    min-height: 50px;
+    align-items: center;
+}
+
+.ball {
+    width: 45px;
+    height: 45px;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #cccccc);
+    color: #222;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: inset -3px -3px 7px rgba(0,0,0,0.3), 3px 3px 5px rgba(0,0,0,0.3);
+    animation: popIn 0.4s ease-out forwards;
+}
+
+.ball.star {
+    background: radial-gradient(circle at 30% 30%, #ffd700, #ff9900);
+    color: #fff;
+}
+
+.ball.bonus {
+    background: radial-gradient(circle at 30% 30%, #ff4b2b, #ff416c);
+    color: #fff;
+}
+
+button {
+    background: transparent;
+    border: 2px solid #00e5ff;
+    padding: 10px 20px;
+    color: #00e5ff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+button:hover {
+    background: #00e5ff;
+    color: #141e30;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+}
+
+.loader {
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border-left-color: #00e5ff;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+.disclaimer {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 20px;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+    </style>
+</head>
+<body>
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyniki Loterii UK - Live API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Wyniki Loterii UK</h1>
+        <p class="subtitle">Dane pobierane na żywo przez server z oficjalnych baz losowań</p>
+        
+        <!-- Sekcja UK Lotto -->
+        <div class="lottery-box">
+            <div class="box-header">
+                <h2>UK Lotto</h2>
+                <span id="lotto-date" class="draw-date">Ładowanie daty...</span>
+            </div>
+            <div id="lotto-numbers" class="numbers-container">
+                <div class="loader"></div>
+            </div>
+            <button onclick="fetchLottoResults()">Odśwież wyniki Lotto</button>
+        </div>
+
+        <!-- Sekcja EuroMillions -->
+        <div class="lottery-box">
+            <div class="box-header">
+                <h2>EuroMillions</h2>
+                <span id="euro-date" class="draw-date">Ładowanie daty...</span>
+            </div>
+            <div id="euromillions-numbers" class="numbers-container">
+                <div class="loader"></div>
+            </div>
+            <button onclick="fetchEuroMillionsResults()">Odśwież wyniki EuroMillions</button>
+        </div>
+        
+        <p class="disclaimer">autor Tomasz Szydlo nick Tomitornado Aplikacja synchronizuje się z zewnętrznym serverem w czasie rzeczywistym. Wyświetlane są ostatnie oficjalne wyniki.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+    <script>
+// Zakodowane adresy URL (Base64) - chronią przed automatycznym tłumaczeniem przez translator
+// Po odkodowaniu (atob): 
+// _LOTTO_ENCODED -> https://national-lottery.co.uk
+// _EURO_ENCODED  -> https://national-lottery.co.uk
+const _LOTTO_ENCODED = "aHR0cHM6Ly9kYXRhLm5hdGlvbmFsLWxvdHRlcnkuY28udWsvYXBpL2RyYXdzL3YxL2xvdHRvL2xhdGVzdA==";
+const _EURO_ENCODED  = "aHR0cHM6Ly9kYXRhLm5hdGlvbmFsLWxvdHRlcnkuY28udWsvYXBpL2RyYXdzL3YxL2V1cm9taWxsaW9ucy9sYXRlc3Q=";
+
+let officialLottoData = null;
+let officialEuroData = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+    fetchLottoResults();
+    fetchEuroMillionsResults();
+});
+
+async function fetchLottoResults() {
+    const container = document.getElementById('lotto-numbers');
+    const dateElement = document.getElementById('lotto-date');
+    container.innerHTML = '<div class="loader"></div>';
+    
+    try {
+        // Odkodowanie ukrytego adresu URL w czasie rzeczywistym
+        const decodedUrl = atob(_LOTTO_ENCODED);
+        
+        const response = await fetch(decodedUrl, { method: 'GET', mode: 'cors' });
+        if (!response.ok) throw new Error('Błąd sieci');
+        const data = await response.json();
+        
+        officialLottoData = {
+            date: formatDate(data.drawDate),
+            numbers: data.mainNumbers.map(Number),
+            bonus_ball: data.bonusBall
+        };
+        
+        dateElement.innerText = `Losowanie: ${officialLottoData.date}`;
+        renderBalls(container, officialLottoData.numbers, 'ball', officialLottoData.bonus_ball);
+    } catch (error) {
+        console.error("Błąd Lotto:", error);
+        container.innerHTML = '<p style="color: #ff416c; font-size: 0.9rem;">Nie udało się pobrać danych z API.</p>';
+    }
+}
+
+async function fetchEuroMillionsResults() {
+    const container = document.getElementById('euromillions-numbers');
+    const dateElement = document.getElementById('euro-date');
+    container.innerHTML = '<div class="loader"></div>';
+    
+    try {
+        // Odkodowanie ukrytego adresu URL w czasie rzeczywistym
+        const decodedUrl = atob(_EURO_ENCODED);
+        
+        const response = await fetch(decodedUrl, { method: 'GET', mode: 'cors' });
+        if (!response.ok) throw new Error('Błąd sieci');
+        const data = await response.json();
+        
+        officialEuroData = {
+            date: formatDate(data.drawDate),
+            numbers: data.mainNumbers.map(Number),
+            stars: data.luckyStars.map(Number)
+        };
+        
+        dateElement.innerText = `Losowanie: ${officialEuroData.date}`;
+        renderEuroBalls(container, officialEuroData.numbers, officialEuroData.stars);
+    } catch (error) {
+        console.error("Błąd EuroMillions:", error);
+        container.innerHTML = '<p style="color: #ff416c; font-size: 0.9rem;">Nie udało się pobrać danych z API.</p>';
+    }
+}
+
+function formatDate(rawDate) {
+    if (!rawDate) return "Brak daty";
+    const d = new Date(rawDate);
+    return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function renderBalls(container, numbers, typeClass, bonus = null, hitNumbers = []) {
+    container.innerHTML = '';
+    const sorted = [...numbers].sort((a, b) => a - b);
+    
+    sorted.forEach(num => {
+        const ball = document.createElement('span');
+        ball.className = typeClass;
+        if (hitNumbers.includes(num)) ball.classList.add('hit');
+        ball.innerText = num;
+        container.appendChild(ball);
+    });
+
+    if (bonus) {
+        const bonusBall = document.createElement('span');
+        bonusBall.className = 'ball bonus';
+        if (hitNumbers.includes(Number(bonus))) bonusBall.classList.add('hit');
+        bonusBall.innerText = bonus;
+        container.appendChild(bonusBall);
+    }
+}
+
+function renderEuroBalls(container, numbers, stars, hitNumbers = [], hitStars = []) {
+    container.innerHTML = '';
+    const sortedNumbers = [...numbers].sort((a, b) => a - b);
+    const sortedStars = [...stars].sort((a, b) => a - b);
+
+    sortedNumbers.forEach(num => {
+        const ball = document.createElement('span');
+        ball.className = 'ball';
+        if (hitNumbers.includes(num)) ball.classList.add('hit');
+        ball.innerText = num;
+        container.appendChild(ball);
+    });
+
+    sortedStars.forEach(num => {
+        const ball = document.createElement('span');
+        ball.className = 'ball star';
+        if (hitStars.includes(num)) ball.classList.add('hit');
+        ball.innerText = num;
+        container.appendChild(ball);
+    });
+}
+
+function checkLottoTicket() {
+    if (!officialLottoData) return;
+    const inputs = document.querySelectorAll('.user-lotto-input');
+    const userNumbers = Array.from(inputs).map(inp => Number(inp.value)).filter(val => val > 0 && val <= 59);
+    
+    if (userNumbers.length !== 6) {
+        alert("Wprowadź dokładnie 6 poprawnych liczb (1-59)!");
+        return;
+    }
+
+    const officialNumbers = officialLottoData.numbers;
+    const bonusBall = Number(officialLottoData.bonus_ball);
+    const hits = userNumbers.filter(num => officialNumbers.includes(num));
+    const hitBonus = userNumbers.includes(bonusBall);
+
+    const combinedHits = hitBonus ? [...hits, bonusBall] : hits;
+    renderBalls(document.getElementById('lotto-numbers'), officialNumbers, 'ball', bonusBall, combinedHits);
+
+    const statusMsg = document.getElementById('lotto-status');
+    statusMsg.innerHTML = hitBonus 
+        ? `<span style="color: #00ffcc;">Trafiłeś ${hits.length} liczb + KULĘ BONUSOWĄ!</span>`
+        : `<span style="color: #00ffcc;">Trafiłeś ${hits.length} z 6 liczb!</span>`;
+}
+
+function checkEuroMillionsTicket() {
+    if (!officialEuroData) return;
+    const numInputs = document.querySelectorAll('.user-euro-input');
+    const starInputs = document.querySelectorAll('.user-euro-star-input');
+
+    const userNumbers = Array.from(numInputs).map(inp => Number(inp.value)).filter(val => val > 0 && val <= 50);
+    const userStars = Array.from(starInputs).map(inp => Number(inp.value)).filter(val => val > 0 && val <= 12);
+
+    if (userNumbers.length !== 5 || userStars.length !== 2) {
+        alert("Wprowadź 5 liczb (1-50) oraz 2 gwiazdy (1-12)!");
+        return;
+    }
+
+    const officialNumbers = officialEuroData.numbers;
+    const officialStars = officialEuroData.stars;
+    const hitNumbers = userNumbers.filter(num => officialNumbers.includes(num));
+    const hitStars = userStars.filter(star => officialStars.includes(star));
+
+    renderEuroBalls(document.getElementById('euromillions-numbers'), officialNumbers, officialStars, hitNumbers, hitStars);
+
+    const statusMsg = document.getElementById('euro-status');
+    statusMsg.innerHTML = `<span style="color: #00ffcc;">Trafienia: Liczby (${hitNumbers.length}/5), Gwiazdy (${hitStars.length}/2)</span>`;
+}
+
+    </script>
+</body>
+</html>
